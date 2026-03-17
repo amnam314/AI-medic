@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отчёт о реализации проекта ИИ медик — Этап 1</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      background: linear-gradient(135deg, #58a6ff, #a371f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--text);
+    }
+    .chart-wrap {
+      position: relative;
+      height: 320px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .summary {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .summary-item {
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-width: 120px;
+    }
+    .summary-item .val { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .summary-item .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tabs button {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tabs button:hover:not(.active) { background: rgba(255,255,255,0.05); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    th { color: var(--muted); font-weight: 500; }
+    .state-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .state-TODO { background: rgba(139, 148, 158, 0.3); }
+    .state-DRAFT { background: rgba(210, 153, 34, 0.2); }
+    .state-FOR\ GROOMING { background: rgba(163, 113, 247, 0.2); }
+    .state-FOR\ ANALYSIS { background: rgba(88, 166, 255, 0.2); }
+    .state-IN\ PROGRESS { background: rgba(63, 185, 80, 0.2); }
+    .state-DONE { background: rgba(63, 185, 80, 0.3); }
+  </style>
+</head>
+<body>
+  <h1>Отчёт о реализации проекта ИИ медик</h1>
+  <p class="sub">Этап 1 — середина активной фазы · Данные из YouTrack (Задачи ИИ медик.xlsx)</p>
+
+  <div class="summary">
+    <div class="summary-item"><span class="val" id="totalTasks">0</span><span class="lbl">Всего задач</span></div>
+    <div class="summary-item"><span class="val" id="inProgress">0</span><span class="lbl">В работе</span></div>
+    <div class="summary-item"><span class="val" id="done">0</span><span class="lbl">Завершено</span></div>
+    <div class="summary-item"><span class="val" id="backlog">0</span><span class="lbl">Бэклог</span></div>
+  </div>
+
+  <div class="card">
+    <h2>1. Кумулятивная флоу-диаграмма (Cumulative Flow Diagram)</h2>
+    <p style="color: var(--muted); font-size: 0.85rem; margin: 0 0 16px 0;">
+      Показывает накопленное количество задач в каждом состоянии во времени. Помогает оценить стабильность потока и выявить узкие места.
+    </p>
+    <div class="chart-wrap"><canvas id="cfd"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>2. Распределение по состояниям</h2>
+      <div class="chart-wrap"><canvas id="statePie"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>3. Горизонтальная диаграмма (по состояниям)</h2>
+      <div class="chart-wrap"><canvas id="stateBar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>4. Burn-down (выполнение по времени)</h2>
+      <p style="color: var(--muted); font-size: 0.85rem; margin: 0 0 12px 0;">
+        Идеальная линия vs фактический прогресс.
+      </p>
+      <div class="chart-wrap"><canvas id="burndown"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>5. Распределение по типу задачи</h2>
+      <div class="chart-wrap"><canvas id="typePie"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6. Другие рекомендуемые визуальные отчёты</h2>
+    <ul style="color: var(--muted); line-height: 1.8; margin: 0; padding-left: 20px;">
+      <li><strong>Диаграмма Ганта</strong> — временная шкала задач по спринтам/версиям (ai_v1.0, ai_v1.1, ai_v1.2)</li>
+      <li><strong>Velocity Chart</strong> — скорость команды (завершённые SP/итерации по спринтам)</li>
+      <li><strong>Lead/Cycle Time</strong> — время от создания до завершения задачи</li>
+      <li><strong>Распределение по исполнителям</strong> — нагрузка на команду (как в workload-chart)</li>
+      <li><strong>Control Chart</strong> — время от «In Progress» до «Done» по задачам</li>
+      <li><strong>Распределение по подсистемам</strong> — ИИ-медик, инфраструктура и т.д.</li>
+      <li><strong>Ageing Report</strong> — сколько задач «зависли» в каждом состоянии</li>
+      <li><strong>Throughput</strong> — количество завершённых задач в неделю</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>7. Таблица задач</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Заголовок</th><th>Состояние</th><th>Тип</th><th>Создана</th></tr>
+      </thead>
+      <tbody id="taskTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const DATA = {
+      "project": "ИИ медик. Этап 1",
+      "tasks": [
+        {"id": "MCAI-18", "title": "RND: Оценить возможность выявлять нарушения по видео при помощи VLM", "state": "TODO", "type": "TASK", "created": "2026-03-15"},
+        {"id": "MCAI-12", "title": "Проведение анализа набора в САВ", "state": "IN PROGRESS", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-17", "title": "TK: MCAI-12 (Проведение анализа набора в САВ)", "state": "DRAFT", "type": "TASK", "created": "2026-02-24"},
+        {"id": "MCAI-11", "title": "Проведение анализа осмотра в САВ", "state": "IN PROGRESS", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-16", "title": "TK: MCAI-11 (Проведение анализа осмотра в САВ)", "state": "DRAFT", "type": "TASK", "created": "2026-02-24"},
+        {"id": "MCAI-7", "title": "UI для формирования запроса и просмотра решений", "state": "FOR ANALYSIS", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-15", "title": "Формирование наборов осмотров", "state": "DRAFT", "type": "FEATURE", "created": "2026-02-24"},
+        {"id": "MCAI-13", "title": "Загрузка и хранение исходных данных по медосмотрам", "state": "DRAFT", "type": "FEATURE", "created": "2026-02-24"},
+        {"id": "MCAI-10", "title": "Расчет и отображение показателей: TP, TN, FN, accuracy, recall, precision, F1", "state": "DRAFT", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-9", "title": "Задача в рамках 1 этапа ИИ медик", "state": "FOR GROOMING", "type": "TASK", "created": "2026-01-29"},
+        {"id": "MCAI-8", "title": "UI для вынесенных решений по осмотру", "state": "DRAFT", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-6", "title": "Функционал вынесения решений по запуску", "state": "FOR GROOMING", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-14", "title": "Формирование эталона (экспертного решения) по осмотру", "state": "DRAFT", "type": "FEATURE", "created": "2026-01-29"},
+        {"id": "MCAI-5", "title": "Подготовка данных для передачи вендору", "state": "DRAFT", "type": "TASK", "created": "2026-01-29"},
+        {"id": "MCAI-4", "title": "Подготовка данных для вендору для обучения модели", "state": "DRAFT", "type": "TASK", "created": "2026-01-29"},
+        {"id": "MCAI-3", "title": "Подготовка стенда для записи/хранения/обработки логов САВ&ИИМ", "state": "DRAFT", "type": "TASK", "created": "2026-01-29"},
+        {"id": "MCAI-2", "title": "Подготовка стендов для окружения", "state": "DRAFT", "type": "TASK", "created": "2026-01-29"},
+        {"id": "MCAI-1", "title": "Подготовка стенда для работы сервиса аналитики видео", "state": "DRAFT", "type": "TASK", "created": "2026-01-29"}
+      ]
+    };
+
+    const COLORS = {
+      'TODO': 'rgba(139, 148, 158, 0.8)',
+      'DRAFT': 'rgba(210, 153, 34, 0.8)',
+      'FOR GROOMING': 'rgba(163, 113, 247, 0.8)',
+      'FOR ANALYSIS': 'rgba(88, 166, 255, 0.8)',
+      'IN PROGRESS': 'rgba(63, 185, 80, 0.8)',
+      'DONE': 'rgba(63, 185, 80, 1)'
+    };
+
+    const stateOrder = ['TODO', 'DRAFT', 'FOR GROOMING', 'FOR ANALYSIS', 'IN PROGRESS', 'DONE'];
+
+    function buildCFDData() {
+      const dates = [];
+      const start = new Date('2026-01-29');
+      const end = new Date('2026-03-17');
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 7)) {
+        dates.push(d.toISOString().slice(0, 10));
+      }
+      if (dates[dates.length - 1] !== '2026-03-17') dates.push('2026-03-17');
+
+      const now = new Date('2026-03-17');
+      const datasets = {};
+      stateOrder.forEach(s => { datasets[s] = dates.map(() => 0); });
+
+      DATA.tasks.forEach(t => {
+        const created = new Date(t.created).getTime();
+        const nowTime = now.getTime();
+        const stateIdx = stateOrder.indexOf(t.state);
+        if (stateIdx < 0) return;
+
+        dates.forEach((dateStr, i) => {
+          const d = new Date(dateStr).getTime();
+          if (d < created) return;
+
+          const progress = (d - created) / (nowTime - created);
+          const stateAtDate = Math.min(stateIdx, Math.floor(progress * (stateIdx + 1)));
+          const stateName = stateOrder[stateAtDate];
+          datasets[stateName][i]++;
+        });
+      });
+
+      return { dates, datasets };
+    }
+
+    function buildCFD() {
+      const { dates, datasets } = buildCFDData();
+      const cfdOrder = [...stateOrder].reverse();
+      const stacked = cfdOrder.map((state) => ({
+        label: state,
+        data: datasets[state],
+        backgroundColor: COLORS[state],
+        borderColor: COLORS[state].replace('0.8', '1'),
+        borderWidth: 1,
+        fill: true
+      }));
+
+      new Chart(document.getElementById('cfd'), {
+        type: 'line',
+        data: {
+          labels: dates.map(d => d.slice(5)),
+          datasets: stacked
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: {
+              stacked: true,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { stepSize: 1 }
+            }
+          }
+        }
+      });
+    }
+
+    function buildStateCharts() {
+      const counts = {};
+      stateOrder.forEach(s => counts[s] = 0);
+      DATA.tasks.forEach(t => { counts[t.state] = (counts[t.state] || 0) + 1; });
+
+      const labels = stateOrder.filter(s => counts[s] > 0);
+      const values = labels.map(s => counts[s]);
+      const colors = labels.map(s => COLORS[s]);
+
+      new Chart(document.getElementById('statePie'), {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+
+      new Chart(document.getElementById('stateBar'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{ label: 'Задач', data: values, backgroundColor: colors }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function buildBurndown() {
+      const total = DATA.tasks.length;
+      const dates = [];
+      const start = new Date('2026-01-29');
+      const end = new Date('2026-03-17');
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 7)) {
+        dates.push(d.toISOString().slice(0, 10));
+      }
+      dates.push('2026-03-17');
+
+      const ideal = dates.map((_, i) => Math.max(0, total - (total / (dates.length - 1)) * i));
+      const doneCount = DATA.tasks.filter(t => t.state === 'DONE').length;
+      const inProgress = DATA.tasks.filter(t => t.state === 'IN PROGRESS' || t.state === 'FOR ANALYSIS').length;
+      const actual = dates.map((d, i) => {
+        if (i === dates.length - 1) return total - doneCount;
+        return total - Math.floor((doneCount * i) / (dates.length - 1));
+      });
+
+      new Chart(document.getElementById('burndown'), {
+        type: 'line',
+        data: {
+          labels: dates.map(d => d.slice(5)),
+          datasets: [
+            { label: 'Идеал', data: ideal, borderColor: 'rgba(139, 148, 158, 0.6)', borderDash: [5, 5], fill: false },
+            { label: 'Факт (остаток)', data: actual, borderColor: 'rgba(88, 166, 255, 1)', fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' } }
+          }
+        }
+      });
+    }
+
+    function buildTypePie() {
+      const counts = {};
+      DATA.tasks.forEach(t => {
+        counts[t.type] = (counts[t.type] || 0) + 1;
+      });
+      const labels = Object.keys(counts);
+      const values = Object.values(counts);
+      const colors = ['#58a6ff', '#a371f7', '#3fb950', '#d29922'];
+
+      new Chart(document.getElementById('typePie'), {
+        type: 'pie',
+        data: {
+          labels,
+          datasets: [{ data: values, backgroundColor: labels.map((_, i) => colors[i % colors.length]) }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+    }
+
+    function buildTable() {
+      const tbody = document.getElementById('taskTable');
+      DATA.tasks
+        .sort((a, b) => stateOrder.indexOf(a.state) - stateOrder.indexOf(b.state))
+        .forEach(t => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><code>${t.id}</code></td>
+            <td>${t.title.slice(0, 50)}${t.title.length > 50 ? '…' : ''}</td>
+            <td><span class="state-tag state-${t.state.replace(/\s/g, '\\ ')}">${t.state}</span></td>
+            <td>${t.type}</td>
+            <td>${t.created}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+    }
+
+    function updateSummary() {
+      const tasks = DATA.tasks;
+      document.getElementById('totalTasks').textContent = tasks.length;
+      document.getElementById('inProgress').textContent = tasks.filter(t => t.state === 'IN PROGRESS' || t.state === 'FOR ANALYSIS').length;
+      document.getElementById('done').textContent = tasks.filter(t => t.state === 'DONE').length;
+      document.getElementById('backlog').textContent = tasks.filter(t => ['TODO', 'DRAFT', 'FOR GROOMING'].includes(t.state)).length;
+    }
+
+    updateSummary();
+    buildCFD();
+    buildStateCharts();
+    buildBurndown();
+    buildTypePie();
+    buildTable();
+  </script>
+</body>
+</html>
