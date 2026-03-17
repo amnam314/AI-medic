@@ -1,0 +1,26 @@
+{
+  "project": "ИИ медик. Этап 1",
+  "description": "Проект ИИ-медик: интеграция с САВ, анализ медосмотров по видео, формирование наборов, расчёт показателей качества",
+  "tasks": [
+    {"id": "MCAI-18", "title": "RND: Оценить возможность выявлять нарушения по видео при помощи VLM", "state": "TODO", "type": "TASK", "subsystem": "-", "created": "2026-03-15", "updated": "2026-03-15"},
+    {"id": "MCAI-12", "title": "Проведение анализа набора в САВ", "state": "IN PROGRESS", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-24"},
+    {"id": "MCAI-17", "title": "TK: MCAI-12 (Проведение анализа набора в САВ)", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-02-24", "updated": "2026-02-24"},
+    {"id": "MCAI-11", "title": "Проведение анализа осмотра в САВ", "state": "IN PROGRESS", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-24"},
+    {"id": "MCAI-16", "title": "TK: MCAI-11 (Проведение анализа осмотра в САВ)", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-02-24", "updated": "2026-02-24"},
+    {"id": "MCAI-7", "title": "UI для формирования запроса и просмотра решений", "state": "FOR ANALYSIS", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-23"},
+    {"id": "MCAI-15", "title": "Формирование наборов осмотров", "state": "DRAFT", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-02-24", "updated": "2026-02-24"},
+    {"id": "MCAI-13", "title": "Загрузка и хранение исходных данных по медосмотрам", "state": "DRAFT", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-02-24", "updated": "2026-02-12"},
+    {"id": "MCAI-10", "title": "Расчет и отображение показателей: TP, TN, FN, accuracy, recall, precision, F1", "state": "DRAFT", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-02-24", "updated": "2026-02-12"},
+    {"id": "MCAI-9", "title": "Задача в рамках 1 этапа ИИ медик", "state": "FOR GROOMING", "type": "TASK", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-8", "title": "UI для вынесенных решений по осмотру", "state": "DRAFT", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-6", "title": "Функционал вынесения решений по запуску", "state": "FOR GROOMING", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-14", "title": "Формирование эталона (экспертного решения) по осмотру", "state": "DRAFT", "type": "FEATURE", "subsystem": "ИИ-медик", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-5", "title": "Подготовка данных для передачи вендору", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-4", "title": "Подготовка данных для вендору для обучения модели", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-3", "title": "Подготовка стенда для записи/хранения/обработки логов САВ&ИИМ", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-2", "title": "Подготовка стендов для окружения", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-01-29", "updated": "2026-02-12"},
+    {"id": "MCAI-1", "title": "Подготовка стенда для работы сервиса аналитики видео", "state": "DRAFT", "type": "TASK", "subsystem": "-", "created": "2026-01-29", "updated": "2026-02-12"}
+  ],
+  "states": ["TODO", "DRAFT", "FOR GROOMING", "FOR ANALYSIS", "IN PROGRESS", "DONE"],
+  "stateOrder": {"TODO": 1, "DRAFT": 2, "FOR GROOMING": 3, "FOR ANALYSIS": 4, "IN PROGRESS": 5, "DONE": 6}
+}
